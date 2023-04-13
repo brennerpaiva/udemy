@@ -1,7 +1,11 @@
 import RoutesApp from "./routes";
 
 function App() {
-  return <RoutesApp />;
+  return (
+    <>
+      <RoutesApp />
+    </>
+  );
 }
 
 export default App;
