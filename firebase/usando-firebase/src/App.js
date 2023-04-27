@@ -1,6 +1,15 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { db } from "./firebaseConnection";
-import {collection, doc, setDoc, addDoc, getDocs, updateDoc, deleteDoc} from "firebase/firestore";
+import {
+  collection,
+  doc,
+  setDoc,
+  addDoc,
+  getDocs,
+  updateDoc,
+  deleteDoc,
+  onSnapshot,
+} from "firebase/firestore";
 
 import "./app.css";
 
@@ -10,6 +19,26 @@ function App() {
   const [idPost, setIdPost] = useState("");
 
   const [posts, setPosts] = useState([]);
+
+  useEffect(() => {
+    async function loadPosts() {
+      const unsub = onSnapshot(collection(db, "posts"), (snapshot) => {
+        let listaPost = [];
+
+        snapshot.forEach((doc) => {
+          listaPost.push({
+            id: doc.id,
+            titulo: doc.data().titulo,
+            autor: doc.data().autor,
+          });
+        });
+
+        setPosts(listaPost);
+      });
+    }
+
+    loadPosts();
+  }, []);
 
   async function handleAdd() {
     // Gerando id específico -->
@@ -39,8 +68,8 @@ function App() {
       });
   }
 
+  //Buscar Posts
   async function buscarPost() {
-    
     //   const postRef = doc(db, "posts", "g5kqYmfEb3fSyq5FgACt");
     //   await getDoc(postRef)
     //   .then((snapshot) => {
@@ -71,6 +100,7 @@ function App() {
       });
   }
 
+  // Editar Post
   async function editarPost() {
     const docRef = doc(db, "posts", idPost);
     await updateDoc(docRef, {
@@ -79,22 +109,21 @@ function App() {
     })
       .then(() => {
         console.log("Post Atualizado");
-        setIdPost('')
-        setTitulo('')
-        setAutor('')
+        setIdPost("");
+        setTitulo("");
+        setAutor("");
       })
       .catch((error) => {
         console.log(error);
       });
   }
 
+  //Exlcuir Post
   async function ExcluirPost(id) {
-    const docRef = doc(db, "posts", id)
-    await deleteDoc(docRef)
-    .then(() => {
-      buscarPost()
+    const docRef = doc(db, "posts", id);
+    await deleteDoc(docRef).then(() => {
       alert("post deletado com sucesso!");
-    })
+    });
   }
 
   return (
@@ -139,7 +168,10 @@ function App() {
                 <br />
                 <span>Titulo: {item.titulo}</span> <br />
                 <span>Autor: {item.autor}</span> <br />
-                <button onClick={() => ExcluirPost(item.id)}>Excluir</button> <br />
+                <button onClick={() => ExcluirPost(item.id)}>
+                  Excluir
+                </button>{" "}
+                <br />
                 <br />
               </li>
             );
