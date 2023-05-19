@@ -21,3 +21,5 @@ function soma(x: number, y: number) {
     return x + y;
 }
 const result = soma(2, 2);
+
+const soma2: (x: number, y: number) => number = (x, y) => x + y;
